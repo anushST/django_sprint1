@@ -1,6 +1,7 @@
 from django.shortcuts import render
+from django.http import HttpResponse, HttpRequest
 
-posts = [
+posts: list[dict] = [
     {
         'id': 0,
         'location': 'Остров отчаянья',
@@ -44,26 +45,42 @@ posts = [
 ]
 
 
-# Create your views here.
-def index(request):
-    template_name = 'blog/index.html'
-    context = {
-        'posts': reversed(posts),
+def sort_posts(posts: list) -> list:
+    posts_id: dict = {}
+    for post in posts:
+        posts_id[post['id']] = post
+
+    sorted_posts: list[dict] = []
+    for i in range(len(posts)):
+        sorted_posts.append(posts_id[i])
+
+    return sorted_posts
+
+
+def index(request: HttpRequest) -> HttpResponse:
+    template_name: dict = 'blog/index.html'
+    context: dict = {
+        'posts': reversed(sort_posts(posts)),
     }
     return render(request, template_name, context)
 
 
-def post_detail(request, id):
-    template_name = 'blog/detail.html'
-    context = {
-        'post': posts[id],
+def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
+    template_name: str = 'blog/detail.html'
+    sorted_posts: list[dict] = sort_posts(posts)
+    context: dict = {
+        'post': sorted_posts[post_id],
     }
+
+    max_id: int = len(posts) - 1
+    if post_id > max_id:
+        return HttpResponse('Tакого поста нет')
     return render(request, template_name, context)
 
 
-def category_posts(request, category_slug):
-    template_name = 'blog/category.html'
-    context = {
+def category_posts(request: HttpRequest, category_slug: str) -> HttpResponse:
+    template_name: str = 'blog/category.html'
+    context: dict = {
         'category': category_slug,
     }
     return render(request, template_name, context)
