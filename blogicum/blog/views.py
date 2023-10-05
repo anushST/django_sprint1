@@ -49,21 +49,18 @@ posts_id: dict = {post['id']: post for post in posts}
 
 def index(request: HttpRequest) -> HttpResponse:
     template_name: dict = 'blog/index.html'
-    reversed_posts: list[dict] = [posts_id[id]
-                                  for id in reversed(range(len(posts)))]
     context: dict = {
-        'posts': reversed_posts,
+        'posts': reversed(posts),
+        # Вы же говорили что порядок постов не гарантирован
     }
     return render(request, template_name, context)
 
 
 def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
     template_name: str = 'blog/detail.html'
-    sorted_posts: list[dict] = [posts_id[id] for id in range(len(posts))]
-
     try:
         context: dict = {
-            'post': sorted_posts[post_id],
+            'post': posts_id[post_id],
         }
         return render(request, template_name, context)
     except IndexError:
